@@ -1,0 +1,12 @@
+####################
+### pys60_sudoku ###
+####################
+
+Just put the source file [pys60_sudoku.py] into your Python directory on the
+phone, it can be in the phone memory or on the memory card. Start the Python
+console and run the script. Have fun! If you want to make a SIS from it wait
+for my Py2SIS app which will use ensymble for creating the package, but will
+have a GUI [probably GTK].
+
+Cheers,
+Nándor
