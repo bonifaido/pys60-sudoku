@@ -1,11 +1,8 @@
-#-*- coding:utf-8 -*-
-
-########################################################################
 #
 #	pys60_sudoku
 # A simple sudoku game for S60 based phones.
 #
-#	Copyright (C) 2008 Nandor Istvan Kracser
+#	Copyright (C) 2008-2009 Nandor Istvan Kracser
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,21 +18,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# TODO
-# High Scores using e32dbm
 
-
-__all__ = ["Board", "SudokuGame"]
+__all__ = ["Board", "Game"]
 
 import appuifw
 from graphics import *
 import key_codes
 import e32
-import copy # csak a sudoku tábla másolásáért
+import copy # csak a sudoku tabla masolasaert
 import random
 
 
-# ----------------- SUDOKU CLASS ------------------ #
 class Board:
 	boardlist = []
 	partialboardlist = []
@@ -138,7 +131,7 @@ class Board:
 					found.append(self.boardlist[xoffset+i][yoffset+j])
 		return True
 
-	def getList(self):                # setup board
+	def getList(self):
 		row = [0,0,0,0,0,0,0,0,0]
 		for i in range(0, 9):
 			self.boardlist.append(row[:])
@@ -161,10 +154,7 @@ class Board:
 				else:
 					print self.partialboardlist[i][j],
 			print
-	
-	#----------------------------------------------#
-	#---------------MY FUNCTIONS-------------------#
-	#----------------------------------------------#
+
 	def _checkRow(self, row):
 		found = []
 		for i in range(0, 9):
@@ -206,61 +196,58 @@ class Board:
 		return True
 		
 
-class SudokuGame (object):
+class Game (object):
 
 	def __init__(self):
-
 		self.canvas = appuifw.Canvas(redraw_callback=self.redraw, event_callback=self.paint_table)
-		self.w = self.canvas.size[0]
-		self.h = self.canvas.size[1]
 		self.img = Image.new(self.canvas.size)
-		self.w_unit = self.w / 9
-		self.h_unit = self.h / 9
+		self.w_unit = self.canvas.size[0] / 9
+		self.h_unit = self.canvas.size[1] / 9
 		self.fontsize = 20
 		self.border_color = (0,100,255)
-		self.row = 0 # a keret kiindulási pozíciója, és később az aktuális pozició
+		self.row = 0 # a keret kiindulasi pozicioja, es kesobb az aktualis pozicioja
 		self.coll = 0
-		self.blankcells = 30 # nehézség:)
+		self.blankcells = 51
 		self.b = Board()
-		self.b.generate(81-self.blankcells)
-		# meglegyen az eredeti példány, az összehasonlítások miatt
-		self.referencelist = copy.deepcopy(self.b.partialboardlist)
-		self.app_lock = e32.Ao_lock() # később majd	app_lock.wait()
-		
-		self.menu = [(u"Check",self.check),(u"Generate",self.generateboard),(u"Blank cells",self.setblankcells),(u"Exit",self.quit)]
-		appuifw.app.screen = "normal"
+		self.b.generate(9*9 - self.blankcells)
+		# meglegyen az eredeti peldany, az osszehasonlitasok miatt
+		self.ref_list = copy.deepcopy(self.b.partialboardlist)
 		appuifw.app.title = u"Sudoku"
-		appuifw.app.menu = self.menu	
+		appuifw.app.screen = "normal"
+		self.menu = [
+				(u"New", self.generateboard),
+				(u"Check", self.check),
+				(u"Difficulty", self.change_difficulty),
+				(u"About", self.about)
+					]
+		appuifw.app.menu = self.menu
 		appuifw.app.body = self.canvas
 		appuifw.app.exit_key_handler = self.quit
-	
+		self.app_lock = e32.Ao_lock()
 		self.app_lock.wait()
-		self.paint_table(None)
 
 
 	def paint_table(self,event=None):
-	
 		self.img.clear()
-		self.canvas.blit(self.img)
-	
+
 		if event:
-			if event['keycode']==key_codes.EKey1 and self.referencelist[self.coll][self.row] == 0:
+			if event['keycode']==key_codes.EKey1 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 1
-			elif event['keycode']==key_codes.EKey2 and self.referencelist[self.coll][self.row] == 0:
+			elif event['keycode']==key_codes.EKey2 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 2
-			elif event['keycode']==key_codes.EKey3 and self.referencelist[self.coll][self.row] == 0:
+			elif event['keycode']==key_codes.EKey3 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 3
-			elif event['keycode']==key_codes.EKey4 and self.referencelist[self.coll][self.row] == 0:
+			elif event['keycode']==key_codes.EKey4 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 4
-			elif event['keycode']==key_codes.EKey5 and self.referencelist[self.coll][self.row] == 0:
+			elif event['keycode']==key_codes.EKey5 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 5
-			elif event['keycode']==key_codes.EKey6 and self.referencelist[self.coll][self.row] == 0:
+			elif event['keycode']==key_codes.EKey6 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 6
-			elif event['keycode']==key_codes.EKey7 and self.referencelist[self.coll][self.row] == 0:
+			elif event['keycode']==key_codes.EKey7 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 7
-			elif event['keycode']==key_codes.EKey8 and self.referencelist[self.coll][self.row] == 0:
+			elif event['keycode']==key_codes.EKey8 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 8
-			elif event['keycode']==key_codes.EKey9 and self.referencelist[self.coll][self.row] == 0:
+			elif event['keycode']==key_codes.EKey9 and self.ref_list[self.coll][self.row] == 0:
 				self.b.partialboardlist[self.coll][self.row] = 9
 			elif event['keycode']==key_codes.EKeyUpArrow:
 				if (self.coll -	1) < 0:
@@ -283,67 +270,67 @@ class SudokuGame (object):
 				else:
 					self.row += 1
 		
-		# alkotó keretek felrajzolasa, 4 vastagabb keret is van
+		# alkoto keretek felrajzolasa, 4 vastagabb keret is van
 		for i in range(1,9):
 			_width = 1
 			if i%3 == 0:
 				_width = 3
-			self.canvas.line(((i*self.w_unit,0),(i*self.w_unit,self.h)), width=_width, outline=(0,0,0))
-			self.canvas.line(((0,i*self.h_unit),(self.w,i*self.h_unit)), width=_width, outline=(0,0,0))
+			self.img.line(((i*self.w_unit, 0), (i*self.w_unit, self.img.size[1])), width=_width, outline=(0,0,0))
+			self.img.line(((0, i*self.h_unit), (self.img.size[0], i*self.h_unit)), width=_width, outline=(0,0,0))
 		
-		# az aktuális cella körülrajzolása
-		self.canvas.line(((self.row*self.w_unit,self.coll*self.h_unit),((self.row+1)*self.w_unit,self.coll*self.h_unit)), \
-			width=3, outline=self.border_color) # felső vonal
-		self.canvas.line(((self.row*self.w_unit,(self.coll+1)*self.h_unit),((self.row+1)*self.w_unit,(self.coll+1)*self.h_unit)), \
-			width=3, outline=self.border_color) # alsó vonal
-		self.canvas.line(((self.row*self.w_unit,self.coll*self.h_unit),(self.row*self.w_unit,(self.coll+1)*self.h_unit)), \
+		# az aktualis cella korulrajzolasa
+		self.img.line(((self.row*self.w_unit,self.coll*self.h_unit),((self.row+1)*self.w_unit,self.coll*self.h_unit)), \
+			width=3, outline=self.border_color) # felso vonal
+		self.img.line(((self.row*self.w_unit,(self.coll+1)*self.h_unit),((self.row+1)*self.w_unit,(self.coll+1)*self.h_unit)), \
+			width=3, outline=self.border_color) # also vonal
+		self.img.line(((self.row*self.w_unit,self.coll*self.h_unit),(self.row*self.w_unit,(self.coll+1)*self.h_unit)), \
 			width=3, outline=self.border_color) # bal vonal
-		self.canvas.line((((self.row+1)*self.w_unit,(self.coll+1)*self.h_unit),((self.row+1)*self.w_unit,self.coll*self.h_unit)), \
+		self.img.line((((self.row+1)*self.w_unit,(self.coll+1)*self.h_unit),((self.row+1)*self.w_unit,self.coll*self.h_unit)), \
 			width=3, outline=self.border_color) # jobb vonal
 
 		for i in range(0,9):
 			for j in range(0,9):
 				if not self.b.partialboardlist[i][j] == 0:
 					_color = (0,0,0)
-					if not self.referencelist[i][j] == 0:
+					if not self.ref_list[i][j] == 0:
 						_color = (128,128,128)
-					# font maggasságát és szélességét is belekalkuláljuk
-					self.canvas.text( (j*self.w_unit + self.w_unit/2 - self.fontsize/4, i*self.h_unit + self.h_unit/2 + self.fontsize/2), \
+					# font maggassagat es szelesseget is belekalkulaljuk
+					self.img.text( (j*self.w_unit + self.w_unit/2 - self.fontsize/4, i*self.h_unit + self.h_unit/2 + self.fontsize/2), \
 						unicode(str(self.b.partialboardlist[i][j])), \
 						_color, font=(None,self.fontsize,FONT_BOLD | FONT_ANTIALIAS), )
+
+		self.canvas.blit(self.img)
 	
-	# a canvas redraw_callbackje, át kell venni a paramétert (redraw terület), de lényegtelen, mert mindent újrarajzolunk
-	# ezert ezt nem is adjuk tovább, warningot adott ezért tettem bele ezt a kerülőt
+	# a canvas redraw_callbackje, at kell venni a parametert (redraw terulet)
 	def redraw(self,param):
-		self.paint_table()
+		self.canvas.blit(self.img)
 
 	# menu functions
 	def generateboard(self):
-		self.b.generate(81-self.blankcells)
-		self.referencelist = copy.deepcopy(self.b.partialboardlist)
+		self.b.generate(9*9 - self.blankcells)
+		self.ref_list = copy.deepcopy(self.b.partialboardlist)
 		self.paint_table()
 
 	def check(self):
 		if self.b._check():
 			appuifw.note(u"Success","conf")
-			# TODO 
-			# megkérdezni hogy akar e még egy meccset
-			self.generateboard()
+			if appuifw.query(u'Next game?', 'query'):
+				self.generateboard()
 		else:
-			appuifw.note(u"Fail","info")
-			appuifw.app.body = self.canvas
+			appuifw.note(u"Fail","error")
 
-	# beállítja az üres cellák számát, és generál egy új táblát
-	def setblankcells(self):
+	def change_difficulty(self):
 		self.blankcells = appuifw.query(u"How many blank cells do you want? (1-80)","number")
 		while self.blankcells > 80 or self.blankcells < 1:
 			self.blankcells = appuifw.query(u"Please choose between 1 and 80!.","number")
 		self.generateboard()
 
+	def about(self):
+		appuifw.note(u"Visit http://github.com/bonifaido/","info")
+
 	def quit(self):
 		self.app_lock.signal()
-		
+
 
 if __name__ == '__main__':
-	sudokuGame = SudokuGame()
-
+	Game()
