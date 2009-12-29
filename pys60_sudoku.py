@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
 ########################################################################
@@ -6,7 +5,7 @@
 #	pys60_sudoku
 # A simple sudoku game for S60 based phones.
 #
-#	Copyright (C) 2008 Nandor István Kracser
+#	Copyright (C) 2008 Nandor Istvan Kracser
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,11 +27,10 @@
 
 __all__ = ["Board", "SudokuGame"]
 
-if __name__ == '__main__':
-	import appuifw
-	from graphics import *
-	import key_codes
-	import e32
+import appuifw
+from graphics import *
+import key_codes
+import e32
 import copy # csak a sudoku tábla másolásáért
 import random
 
